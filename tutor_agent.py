@@ -1,10 +1,11 @@
 """
 Personal Learning Tutor Agent
 A conversational AI tutor that helps users learn any topic quickly and practically.
+Supports both OpenAI and Anthropic APIs.
 """
 
 import os
-from anthropic import Anthropic
+from typing import List, Dict, Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -102,30 +103,122 @@ End of session wrap
 
 
 class PersonalTutor:
-    """Personal Learning Tutor powered by Claude AI"""
+    """Personal Learning Tutor supporting both OpenAI and Anthropic"""
 
-    def __init__(self, api_key=None):
-        """Initialize the tutor with Anthropic API"""
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY not found. Please set it in .env file or pass it directly.")
+    def __init__(self, provider: str = "anthropic", api_key: Optional[str] = None, model: Optional[str] = None):
+        """
+        Initialize the tutor with chosen AI provider
 
-        self.client = Anthropic(api_key=self.api_key)
+        Args:
+            provider: "openai" or "anthropic"
+            api_key: API key for the chosen provider
+            model: Optional model name override
+        """
+        self.provider = provider.lower()
         self.conversation_history = []
-        self.model = "claude-3-5-sonnet-20241022"
 
-    def start_session(self):
-        """Start a new tutoring session"""
-        print("=" * 60)
-        print("Personal Learning Tutor - Powered by Claude AI")
-        print("=" * 60)
+        if self.provider == "anthropic":
+            from anthropic import Anthropic
+            self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+            if not self.api_key:
+                raise ValueError("ANTHROPIC_API_KEY not found. Please provide an API key.")
+            self.client = Anthropic(api_key=self.api_key)
+            self.model = model or "claude-3-5-sonnet-20241022"
+
+        elif self.provider == "openai":
+            from openai import OpenAI
+            self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+            if not self.api_key:
+                raise ValueError("OPENAI_API_KEY not found. Please provide an API key.")
+            self.client = OpenAI(api_key=self.api_key)
+            self.model = model or "gpt-4o"
+
+        else:
+            raise ValueError(f"Unknown provider: {provider}. Use 'openai' or 'anthropic'")
+
+    def get_response(self, user_message: str) -> str:
+        """Get response from the AI provider"""
+        # Add user message to history
+        self.conversation_history.append({
+            "role": "user",
+            "content": user_message
+        })
+
+        try:
+            if self.provider == "anthropic":
+                response = self._get_anthropic_response()
+            else:  # openai
+                response = self._get_openai_response()
+
+            # Add assistant response to history
+            self.conversation_history.append({
+                "role": "assistant",
+                "content": response
+            })
+
+            return response
+
+        except Exception as e:
+            return f"Sorry, I encountered an error: {str(e)}"
+
+    def _get_anthropic_response(self) -> str:
+        """Get response from Anthropic Claude"""
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=2000,
+            system=TUTOR_SYSTEM_PROMPT,
+            messages=self.conversation_history
+        )
+        return response.content[0].text
+
+    def _get_openai_response(self) -> str:
+        """Get response from OpenAI"""
+        # OpenAI format includes system message in messages array
+        messages = [{"role": "system", "content": TUTOR_SYSTEM_PROMPT}]
+        messages.extend(self.conversation_history)
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            max_tokens=2000,
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+
+    def reset_conversation(self):
+        """Clear conversation history"""
+        self.conversation_history = []
+
+    def get_conversation_history(self) -> List[Dict[str, str]]:
+        """Get the full conversation history"""
+        return self.conversation_history.copy()
+
+
+def main():
+    """CLI interface for the tutor"""
+    import sys
+
+    print("=" * 60)
+    print("Personal Learning Tutor - CLI Version")
+    print("=" * 60)
+
+    # Choose provider
+    provider = input("\nChoose AI provider (1=OpenAI, 2=Anthropic): ").strip()
+    provider = "openai" if provider == "1" else "anthropic"
+
+    # Get API key
+    api_key = input(f"Enter your {provider.upper()} API key: ").strip()
+
+    try:
+        tutor = PersonalTutor(provider=provider, api_key=api_key)
+        print(f"\n✓ Connected to {provider.upper()}")
         print("\nType 'quit' or 'exit' to end the session.\n")
 
-        # Get the initial greeting from Claude
-        response = self.get_response("Hello! I'm ready to start learning.")
+        # Start conversation
+        response = tutor.get_response("Hello! I'm ready to start learning.")
         print(f"\nTutor: {response}\n")
 
-        # Main conversation loop
+        # Main loop
         while True:
             user_input = input("You: ").strip()
 
@@ -136,72 +229,14 @@ class PersonalTutor:
             if not user_input:
                 continue
 
-            response = self.get_response(user_input)
+            response = tutor.get_response(user_input)
             print(f"\nTutor: {response}\n")
-
-    def get_response(self, user_message):
-        """Get response from Claude API"""
-        # Add user message to history
-        self.conversation_history.append({
-            "role": "user",
-            "content": user_message
-        })
-
-        try:
-            # Call Claude API
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=2000,
-                system=TUTOR_SYSTEM_PROMPT,
-                messages=self.conversation_history
-            )
-
-            # Extract assistant's response
-            assistant_message = response.content[0].text
-
-            # Add assistant response to history
-            self.conversation_history.append({
-                "role": "assistant",
-                "content": assistant_message
-            })
-
-            return assistant_message
-
-        except Exception as e:
-            return f"Sorry, I encountered an error: {str(e)}"
-
-    def save_session(self, filename="session_log.txt"):
-        """Save the conversation to a file"""
-        with open(filename, 'w') as f:
-            f.write("Personal Learning Tutor - Session Log\n")
-            f.write("=" * 60 + "\n\n")
-            for message in self.conversation_history:
-                role = "You" if message["role"] == "user" else "Tutor"
-                f.write(f"{role}: {message['content']}\n\n")
-        print(f"Session saved to {filename}")
-
-
-def main():
-    """Main entry point for the tutor"""
-    try:
-        tutor = PersonalTutor()
-        tutor.start_session()
-
-        # Ask if user wants to save the session
-        save = input("\nWould you like to save this session? (yes/no): ").strip().lower()
-        if save in ['yes', 'y']:
-            tutor.save_session()
 
     except ValueError as e:
         print(f"\nError: {e}")
-        print("\nTo use this tutor:")
-        print("1. Get an API key from https://console.anthropic.com/")
-        print("2. Create a .env file with: ANTHROPIC_API_KEY=your_key_here")
-        print("3. Run the tutor again\n")
-
+        sys.exit(1)
     except KeyboardInterrupt:
         print("\n\nSession interrupted. Goodbye!")
-
     except Exception as e:
         print(f"\nUnexpected error: {e}")
 
