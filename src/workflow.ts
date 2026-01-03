@@ -68,7 +68,7 @@ async function scrubWorkflowInput(workflow: any, inputKey: string, piiOnly: any)
 async function runAndApplyGuardrails(inputText: string, config: any, history: any[], workflow: any) {
     const guardrails = Array.isArray(config?.guardrails) ? config.guardrails : [];
     const results = await runGuardrails(inputText, config, context, true);
-    const shouldMaskPII = guardrails.find((g) => (g?.name === "Contains PII") && g?.config && g.config.block === false);
+    const shouldMaskPII = guardrails.find((g: any) => (g?.name === "Contains PII") && g?.config && g.config.block === false);
     if (shouldMaskPII) {
         const piiOnly = { guardrails: [shouldMaskPII] };
         await scrubConversationHistory(history, piiOnly);
@@ -82,7 +82,7 @@ async function runAndApplyGuardrails(inputText: string, config: any, history: an
 
 function buildGuardrailFailOutput(results: any[]) {
     const get = (name: string) => (results ?? []).find((r: any) => ((r?.info?.guardrail_name ?? r?.info?.guardrailName) === name));
-    const pii = get("Contains PII"), mod = get("Moderation"), jb = get("Jailbreak"), hal = get("Hallucination Detection"), nsfw = get("NSFW Text"), url = get("URL Filter"), custom = get("Custom Prompt Check"), pid = get("Prompt Injection Detection"), piiCounts = Object.entries(pii?.info?.detected_entities ?? {}).filter(([, v]) => Array.isArray(v)).map(([k, v]) => k + ":" + v.length), conf = jb?.info?.confidence;
+    const pii = get("Contains PII"), mod = get("Moderation"), jb = get("Jailbreak"), hal = get("Hallucination Detection"), nsfw = get("NSFW Text"), url = get("URL Filter"), custom = get("Custom Prompt Check"), pid = get("Prompt Injection Detection"), piiCounts = Object.entries(pii?.info?.detected_entities ?? {}).filter(([, v]: [string, unknown]) => Array.isArray(v)).map(([k, v]: [string, any]) => k + ":" + v.length), conf = jb?.info?.confidence;
     return {
         pii: { failed: (piiCounts.length > 0) || pii?.tripwireTriggered === true, detected_counts: piiCounts },
         moderation: { failed: mod?.tripwireTriggered === true || ((mod?.info?.flagged_categories ?? []).length > 0), flagged_categories: mod?.info?.flagged_categories },
