@@ -33,11 +33,11 @@ app.post('/api/chat', async (req, res) => {
       });
     }
 
-    const result = await runWorkflow({ input_as_text: message });
+    const result = await runWorkflow({ input_as_text: message }) as any;
 
     res.json({
       success: true,
-      response: result.output_text || result
+      response: result.output_text || JSON.stringify(result)
     });
 
   } catch (error: any) {
