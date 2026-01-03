@@ -1,25 +1,23 @@
 # Personal Learning Tutor 🎓
 
-An AI-powered personal tutor that helps you learn any topic quickly and practically. Features a clean web interface with support for both OpenAI and Anthropic AI models.
+An AI-powered personal tutor built with **OpenAI Agent Builder** that helps you learn any topic quickly and practically. Features advanced guardrails for safety and a clean web interface.
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template)
 
 ## ✨ Features
 
-- **🎯 80/20 Approach**: Focuses on the most important 20% that gives you 80% of results
+- **🎯 80/20 Learning Approach**: Focuses on the most important 20% that gives you 80% of results
 - **📋 4-Hour Learning Plans**: Creates actionable plans split into manageable sections
 - **💬 Conversational Interface**: Natural chat with frequent comprehension checks
-- **🔄 Adaptive Learning**: Adjusts explanations based on your understanding
-- **🎨 Clean UI**: Professional, easy-to-use web interface (no purple!)
-- **🔑 Multi-Provider**: Choose between OpenAI or Anthropic (you bring your own API key)
-
-## 🌟 What Makes This Tutor Special
-
-- Starts from zero unless you say otherwise
-- Uses plain language suitable for 8th grade reading level
-- Provides everyday examples and comparisons
-- Keeps scope narrow and practical for same-day progress
-- Warm, calm, and supportive tone throughout
+- **🔄 Adaptive Teaching**: Adjusts explanations based on your understanding
+- **🛡️ Advanced Guardrails**: Built-in safety features including:
+  - PII Detection & Anonymization
+  - Content Moderation
+  - Jailbreak Prevention
+  - Prompt Injection Detection
+  - URL Filtering
+- **🎨 Clean Web UI**: Professional, easy-to-use interface
+- **🔑 User API Keys**: Users provide their own OpenAI API keys
 
 ## 🚀 Quick Start
 
@@ -27,10 +25,9 @@ An AI-powered personal tutor that helps you learn any topic quickly and practica
 
 1. **Click the "Deploy on Railway" button above**
 2. **Connect your GitHub account** and select this repository
-3. **No environment variables needed!** Users enter their own API keys in the web interface
-4. **Deploy** and get your live URL
-
-That's it! Your tutor will be live and ready to use.
+3. **Deploy** - Railway will automatically build and deploy
+4. **Get your URL** from Railway settings → Networking → Generate Domain
+5. **Share the URL** - users enter their own API keys!
 
 ### Option 2: Run Locally
 
@@ -42,39 +39,54 @@ That's it! Your tutor will be live and ready to use.
 
 2. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   npm install
    ```
 
-3. **Run the web app**
+3. **Set up environment (optional)**
    ```bash
-   streamlit run app.py
+   cp .env.example .env
+   # Edit .env and add your OPENAI_API_KEY
    ```
 
-4. **Open your browser** to `http://localhost:8501`
+4. **Build and run**
+   ```bash
+   npm run build
+   npm start
+   ```
 
-5. **Enter your API key** in the sidebar and start learning!
+5. **Open your browser** to `http://localhost:3000`
 
-## 🔑 Getting API Keys
+### Development Mode
 
-Users need their own API keys (not stored on the server):
+```bash
+npm run dev
+```
 
-- **OpenAI**: Get a key at [platform.openai.com](https://platform.openai.com/api-keys)
-- **Anthropic**: Get a key at [console.anthropic.com](https://console.anthropic.com/settings/keys)
+This uses `tsx` for faster TypeScript development without building.
 
-Both providers offer pay-as-you-go pricing. A typical learning session costs $0.10-0.50.
+## 🔑 Getting an OpenAI API Key
+
+Users need their own OpenAI API keys:
+
+1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Sign up or log in
+3. Click "Create new secret key"
+4. Copy the key (starts with `sk-`)
+5. Enter it in the web interface
+
+**Cost**: Pay-as-you-go. A typical learning session costs $0.10-0.50 depending on length.
 
 ## 📖 How to Use
 
-1. **Choose your AI provider** (OpenAI or Anthropic) in the sidebar
-2. **Enter your API key** (kept secure, never stored)
-3. **Click "Start Learning Session"**
-4. **Tell the tutor what you want to learn**
-5. **Follow the step-by-step guidance**
-6. **Take action today!**
+1. **Visit the web interface** (your deployed URL or localhost:3000)
+2. **Enter your OpenAI API key** in the input field
+3. **Start chatting** with your personal tutor
+4. **Tell it what you want to learn** - anything from Python to photography!
+5. **Follow the structured learning plan** it creates for you
 
 ## 🎓 How It Works
 
-The tutor follows a structured 6-step approach:
+The tutor follows a proven 6-step learning approach:
 
 1. **Clarifies Topic & Scope**: Confirms what you want to learn and sets realistic goals for today
 2. **Applies 80/20 Rule**: Identifies 3-5 core foundations that matter most
@@ -83,72 +95,92 @@ The tutor follows a structured 6-step approach:
 5. **Teaches Immediately**: Starts teaching right away with frequent check-ins
 6. **Adapts On-The-Go**: Offers quizzes, practice tasks, or different explanations as needed
 
+## 🛡️ Built-in Safety Features (Guardrails)
+
+This tutor includes enterprise-grade safety guardrails:
+
+- **PII Detection**: Automatically detects and anonymizes credit cards, SSNs, passport numbers, etc.
+- **Content Moderation**: Blocks harmful content categories
+- **Jailbreak Prevention**: Prevents attempts to bypass safety measures
+- **Prompt Injection Detection**: Protects against malicious prompts
+- **URL Filtering**: Only allows safe HTTPS URLs
+- **Custom Checks**: Ensures conversations stay focused on learning
+
 ## 📁 Project Structure
 
 ```
 My-Personal-Tutor/
-├── app.py              # Streamlit web interface
-├── tutor_agent.py      # Core tutor logic (multi-provider)
-├── requirements.txt    # Python dependencies
-├── Procfile           # Railway deployment config
-├── railway.json       # Railway configuration
-├── .streamlit/
-│   └── config.toml    # Streamlit theme (clean, not purple!)
-├── .env.example       # Example environment variables
-├── .gitignore         # Git ignore rules
-└── README.md          # This file
+├── src/
+│   ├── workflow.ts      # OpenAI Agent Builder workflow with guardrails
+│   └── server.ts        # Express.js web server
+├── public/
+│   └── index.html       # Clean web interface
+├── package.json         # Node.js dependencies
+├── tsconfig.json        # TypeScript configuration
+├── railway.json         # Railway deployment config
+├── .env.example         # Example environment variables
+├── .gitignore           # Git ignore rules
+└── README.md            # This file
 ```
 
-## 🛠️ Advanced Usage
+## 🔧 Technical Details
 
-### CLI Mode
+### Built With
 
-For command-line enthusiasts:
+- **OpenAI Agent Builder SDK** (`@openai/agents`)
+- **OpenAI Guardrails SDK** (`@openai/guardrails`)
+- **GPT-5.2** model with reasoning capabilities
+- **Express.js** for the web server
+- **TypeScript** for type safety
+- **Web Search Tool** for real-time information
 
-```bash
-python tutor_agent.py
+### Workflow ID
+
+This agent is registered with OpenAI Agent Builder:
+```
+workflow_id: wf_6958981e6614819081ee61d758a96d730d95d548d7a74d9b
 ```
 
-You'll be prompted to choose a provider and enter your API key.
+### API Endpoints
 
-### Customization
+**POST /api/chat**
+```json
+{
+  "message": "I want to learn Python",
+  "apiKey": "sk-..."
+}
+```
 
-Edit `TUTOR_SYSTEM_PROMPT` in `tutor_agent.py` to customize:
-- Teaching style and tone
-- Learning structure and steps
-- How the tutor adapts to your needs
+Response:
+```json
+{
+  "success": true,
+  "response": "Great choice! What is your learning goal..."
+}
+```
 
-### Supported Models
-
-**OpenAI:**
-- `gpt-4o` (default, recommended)
-- `gpt-4o-mini` (faster, cheaper)
-- `gpt-4-turbo`
-
-**Anthropic:**
-- `claude-3-5-sonnet-20241022` (default, recommended)
-- `claude-3-opus-20240229` (most capable)
-- `claude-3-haiku-20240307` (fastest, cheapest)
+**GET /health**
+Health check endpoint
 
 ## 🚂 Railway Deployment Guide
 
-### Step-by-Step Deployment
+### Step-by-Step
 
-1. **Push your code to GitHub**
+1. **Push your code to GitHub** (already done!)
 2. **Go to [railway.app](https://railway.app)**
 3. **Sign up/Login with GitHub**
 4. **Click "New Project" → "Deploy from GitHub repo"**
 5. **Select `My-Personal-Tutor` repository**
-6. **Railway auto-detects the configuration**
+6. **Railway auto-detects Node.js and builds**
 7. **Click "Deploy"**
-8. **Get your public URL** (Settings → Generate Domain)
+8. **Generate Domain**: Settings → Networking → Generate Domain
 
 ### Important Notes
 
 - **No environment variables needed!** Users enter API keys in the UI
-- Railway provides **500 hours/month free** on the trial plan
-- App automatically sleeps when inactive
-- Wakes up instantly when accessed
+- Railway provides **500 hours/month free** on trial
+- App auto-sleeps when inactive, wakes instantly
+- Build time: ~2-3 minutes
 
 ## 💰 Cost Estimates
 
@@ -156,48 +188,70 @@ Edit `TUTOR_SYSTEM_PROMPT` in `tutor_agent.py` to customize:
 - **Free tier**: 500 hours/month, $5 credit
 - **After free tier**: ~$5-10/month for light usage
 
-### AI API Usage (Per User Session)
-- **OpenAI GPT-4o**: $0.10-0.50 per hour of tutoring
-- **Anthropic Claude 3.5 Sonnet**: $0.10-0.50 per hour of tutoring
-- **Budget options** (GPT-4o-mini, Claude Haiku): $0.02-0.10 per hour
-
-Users pay for their own API usage, so your hosting costs are minimal!
-
-## 🎨 UI Customization
-
-The interface uses a professional blue/gray color scheme. To customize:
-
-1. Edit `.streamlit/config.toml` for theme colors
-2. Modify CSS in `app.py` for detailed styling
-3. Current theme: Clean, professional, **definitely not purple!**
+### API Usage (Per User Session)
+- **GPT-5.2**: ~$0.10-0.50 per hour of tutoring
+- Users pay for their own API usage
+- Your hosting costs stay minimal!
 
 ## 🔒 Security & Privacy
 
 - **API keys are never stored** - users enter them each session
-- **No conversation data is saved** on the server
-- **All AI requests go directly** from user's browser to AI provider
-- **Session data is temporary** and cleared on reset
+- **Keys are only in memory** during the request
+- **PII is automatically anonymized** before processing
+- **Guardrails run on every message** for safety
+- **No conversation data saved** on the server
 
 ## 🐛 Troubleshooting
 
-**"Please enter your API key first!"**
-- Make sure you've entered a valid API key in the sidebar
+**"OpenAI API key is required"**
+- Make sure users enter their API key in the web interface
 
-**"Error: ANTHROPIC_API_KEY not found"**
-- You're in CLI mode. Enter the key when prompted, or create a `.env` file
+**Build fails on Railway**
+- Check that `package.json` and `tsconfig.json` exist
+- Ensure Node.js version is 18+ in `package.json` engines
 
-**"Connection error"**
-- Check your internet connection
-- Verify your API key is valid and has credits
-- Check provider status page
+**"Module not found" errors**
+- Run `npm install` to install dependencies
+- Check that `@openai/agents` and `@openai/guardrails` are installed
 
-**App won't deploy to Railway**
-- Ensure `Procfile` and `railway.json` are in the root directory
-- Check Railway build logs for specific errors
+**Agent not responding**
+- Verify OpenAI API key is valid
+- Check API key has sufficient credits
+- Look at Railway logs for error details
+
+## 📚 Example Learning Topics
+
+This tutor can help with virtually any topic:
+
+- **Programming**: Python, JavaScript, Web Development, TypeScript
+- **Languages**: Spanish, French, Mandarin, English
+- **Skills**: Photography, Drawing, Music Theory, Writing
+- **Professional**: Excel, Public Speaking, Project Management
+- **Academic**: Math, Physics, History, Biology
+- **Hobbies**: Cooking, Gardening, Chess, Fitness
+
+**The possibilities are endless!**
+
+## 🛠️ Development
+
+### Build TypeScript
+```bash
+npm run build
+```
+
+### Watch Mode
+```bash
+npm run watch
+```
+
+### Development Server
+```bash
+npm run dev
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to:
+Contributions welcome! Feel free to:
 - Report bugs via GitHub Issues
 - Suggest new features
 - Submit pull requests
@@ -209,29 +263,14 @@ MIT License - feel free to use this for personal or commercial projects.
 
 ## 🙏 Acknowledgments
 
-- Built with [Anthropic's Claude](https://www.anthropic.com/) and [OpenAI's GPT](https://openai.com/)
-- Web interface powered by [Streamlit](https://streamlit.io/)
+- Built with [OpenAI Agent Builder](https://platform.openai.com/docs/guides/agent-builder)
+- Powered by [GPT-5.2](https://openai.com/) with reasoning capabilities
 - Inspired by effective learning principles and the 80/20 rule
-
----
-
-## 📚 Example Learning Topics
-
-This tutor can help with virtually any topic:
-
-- **Programming**: Python, JavaScript, Web Development, Data Science
-- **Languages**: Spanish, French, Mandarin, English
-- **Skills**: Photography, Drawing, Music Theory, Writing
-- **Professional**: Excel, Public Speaking, Project Management
-- **Academic**: Math, Physics, History, Biology
-- **Hobbies**: Cooking, Gardening, Chess, Fitness
-
-**The possibilities are endless!**
 
 ---
 
 **Happy Learning!** 🚀
 
-Start your learning journey today with a personal AI tutor that adapts to your needs.
+Start your learning journey today with an AI tutor that adapts to your needs, keeps you safe, and helps you take action.
 
 Questions? Open an issue on GitHub!

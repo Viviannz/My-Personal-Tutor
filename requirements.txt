@@ -1,9 +1,0 @@
-# AI Provider APIs
-anthropic>=0.40.0
-openai>=1.54.0
-
-# Web Interface
-streamlit>=1.39.0
-
-# Utilities
-python-dotenv>=1.0.0
