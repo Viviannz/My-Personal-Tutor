@@ -318,7 +318,12 @@
             }
 
             addMessage('user', message);
+
+            // Clear input immediately and force refresh
             userInput.value = '';
+            userInput.blur();
+            setTimeout(() => userInput.focus(), 0);
+
             sendBtn.disabled = true;
             loading.classList.add('active');
 
@@ -343,6 +348,8 @@
             } finally {
                 sendBtn.disabled = false;
                 loading.classList.remove('active');
+                // Ensure input is clear and focused
+                userInput.value = '';
                 userInput.focus();
             }
         }
